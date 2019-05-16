@@ -20,6 +20,7 @@ export default class ViewPager extends PureComponent {
     static propTypes = {
         ...View.propTypes,
         initialPage: PropTypes.number,
+        outJumpEnable: PropTypes.bool,
         pageMargin: PropTypes.number,
         scrollViewStyle: ViewPropTypes ? ViewPropTypes.style : View.propTypes.style,
         scrollEnabled: PropTypes.bool,
@@ -252,9 +253,13 @@ export default class ViewPager extends PureComponent {
         // unrendered / missing content. Therefore we work around it, as
         // described here
         // https://github.com/facebook/react-native/issues/15734#issuecomment-330616697
+        const width = this.state.width;
+        const pageMargin = this.props.pageMargin;
+        const outWidth = width + pageMargin;
+        const offsetWidth = outWidth * index;
         return {
             length: this.state.width + this.props.pageMargin,
-            offset: (this.state.width + this.props.pageMargin) * index,
+            offset: offsetWidth,
             index
         };
     }
@@ -308,6 +313,10 @@ export default class ViewPager extends PureComponent {
         let gestureResponder = this.gestureResponder;
         if (!scrollEnabled || pageDataArray.length <= 0) {
             gestureResponder = {};
+        }
+        if(this.props.outJumpEnable) {
+            const page = this.validPage(this.props.initialPage);
+            this.onPageChanged(page);
         }
 
         return (
